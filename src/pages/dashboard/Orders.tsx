@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { format } from 'date-fns';
-import { ClipboardList, Clock, User, Check, X, QrCode, Search, Filter } from 'lucide-react';
+import { ClipboardList, Clock, User, Check, X, QrCode, Search, Filter, Bell } from 'lucide-react';
 import type { ApiResponse, Order, OrderStatus } from '../../types';
 
 const statusColors: Record<string, string> = {
@@ -30,11 +30,12 @@ export default function Orders() {
 
   const statusFilter = tab === 'active' ? undefined : tab === 'all' ? undefined : tab;
 
+  const prevOrderCountRef = useRef<number>(0);
+
   const { data: pendingData } = useQuery({
     queryKey: ['pendingOrders'],
     queryFn: () => api.get<ApiResponse<Order[]>>('/business/orders/pending'),
-    refetchInterval: 15000,
-    enabled: tab === 'active',
+    refetchInterval: 5000,
   });
 
   const { data: ordersData } = useQuery({
@@ -42,6 +43,23 @@ export default function Orders() {
     queryFn: () => api.get<ApiResponse<Order[]>>(`/business/orders${statusFilter ? `?status=${statusFilter}` : ''}`),
     enabled: tab !== 'active',
   });
+
+  // Play sound + browser notification when new orders come in
+  useEffect(() => {
+    const currentCount = pendingData?.data?.length ?? 0;
+    if (prevOrderCountRef.current > 0 && currentCount > prevOrderCountRef.current) {
+      // New order arrived
+      try {
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1sbW1ubm5ubm5ubm5ub3BxcnN0dXZ3eHl6e3x8fX5/gIGCg4SFhoeIiYqKi4yMjY2Ojo+PkJCRkZKSk5OTlJSVlZWWlpaXl5eYmJiZmZqampubm5ycnJ2dnZ6enp+fn6CgoKGhoaKioqOjo6SkpKWlpaampqenp6ioqKmpqqqqq6urrKysra2trq6ur6+vsLCwsbGxsrKys7OztLS0tbW1tra2t7e3uLi4ubm5urq6u7u7vLy8vb29vr6+v7+/wMDAwcHBwsLC');
+        audio.volume = 0.5;
+        audio.play().catch(() => {});
+      } catch {}
+      if (Notification.permission === 'granted') {
+        new Notification('New Order!', { body: 'A new order has come in.' });
+      }
+    }
+    prevOrderCountRef.current = currentCount;
+  }, [pendingData?.data?.length]);
 
   const orders = tab === 'active' ? (pendingData?.data || []) : (ordersData?.data || []);
 
@@ -71,7 +89,14 @@ export default function Orders() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">Orders</h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-white">Orders</h1>
+            {(pendingData?.data?.length ?? 0) > 0 && (
+              <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-kula-amber/20 text-kula-amber text-xs font-bold animate-pulse">
+                <Bell size={12} /> {pendingData?.data?.length} active
+              </span>
+            )}
+          </div>
           <p className="text-white/50 text-sm mt-1">Manage customer orders</p>
         </div>
         <button

@@ -4,7 +4,7 @@ import {
   LayoutDashboard, ShoppingBag, ClipboardList, BarChart3,
   Store, Settings, LogOut, ChevronLeft, ChevronRight,
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Overview', end: true },
@@ -19,6 +19,13 @@ export default function DashboardLayout() {
   const { user, restaurant, logout } = useAuthStore();
   const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
+
+  // Request browser notification permission on mount
+  useEffect(() => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+  }, []);
 
   const handleLogout = () => {
     logout();

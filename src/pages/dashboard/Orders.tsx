@@ -157,14 +157,23 @@ export default function Orders() {
         </div>
       ) : (
         <div className="space-y-3">
-          {orders.map(order => (
-            <div key={order.id} className="card-dark p-5 animate-fade-in">
+          {orders.map(order => {
+            const isCustomerHere = !!(order.customerArrivedAt && ['paid', 'ready'].includes(order.status));
+            return (
+            <div
+              key={order.id}
+              className={`card-dark p-5 animate-fade-in transition-all ${
+                isCustomerHere
+                  ? 'ring-1 ring-kula-amber/40 bg-kula-amber/[0.04] animate-pulse-slow'
+                  : ''
+              }`}
+            >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-start gap-4">
                   {/* Status indicator */}
                   <div className={`w-2 h-full min-h-[48px] rounded-full ${
-                    order.customerArrivedAt && ['paid', 'ready'].includes(order.status)
-                      ? 'bg-kula-amber animate-pulse'
+                    isCustomerHere
+                      ? 'bg-kula-amber'
                       : order.status === 'ready' ? 'bg-kula-success'
                       : order.status === 'paid' ? 'bg-blue-400'
                       : order.status === 'collected' ? 'bg-kula-green'
@@ -174,9 +183,15 @@ export default function Orders() {
                   <div>
                     <div className="flex items-center gap-2 mb-1">
                       <p className="text-white font-semibold">{order.orderNumber}</p>
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusColors[order.status]}`}>
-                        {order.customerArrivedAt && ['paid', 'ready'].includes(order.status) ? 'CUSTOMER HERE' : order.status.toUpperCase()}
-                      </span>
+                      {isCustomerHere ? (
+                        <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-kula-amber/20 text-kula-amber tracking-wide">
+                          CUSTOMER HERE
+                        </span>
+                      ) : (
+                        <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusColors[order.status]}`}>
+                          {order.status.toUpperCase()}
+                        </span>
+                      )}
                     </div>
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-white/50">
                       <span className="flex items-center gap-1"><User size={14} /> {order.user.name}</span>
@@ -223,7 +238,8 @@ export default function Orders() {
                 )}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

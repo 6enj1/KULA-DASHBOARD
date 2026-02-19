@@ -62,6 +62,7 @@ export default {
         'float': 'float 6s ease-in-out infinite',
         'float-delayed': 'float 6s ease-in-out 3s infinite',
         'glow-pulse': 'glow-pulse 3s ease-in-out infinite',
+        'pulse-slow': 'pulse-slow 3s ease-in-out infinite',
       },
       keyframes: {
         'reveal': {
@@ -83,6 +84,10 @@ export default {
         'glow-pulse': {
           '0%, 100%': { boxShadow: '0 0 20px rgba(41,125,107,0.2)' },
           '50%': { boxShadow: '0 0 40px rgba(41,125,107,0.4)' },
+        },
+        'pulse-slow': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.85' },
         },
       },
     },

@@ -50,7 +50,7 @@ function OnboardingGuard({ children }: { children: React.ReactNode }) {
 }
 
 function GuestGuard({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, restaurant, isLoading } = useAuthStore();
+  const { user, isAuthenticated, restaurant, isLoading } = useAuthStore();
   if (isLoading) {
     return (
       <div className="min-h-screen gradient-bg flex items-center justify-center">
@@ -58,7 +58,7 @@ function GuestGuard({ children }: { children: React.ReactNode }) {
       </div>
     );
   }
-  if (isAuthenticated && restaurant) return <Navigate to="/dashboard" replace />;
+  if (isAuthenticated && (restaurant || user?.role === 'admin')) return <Navigate to="/dashboard" replace />;
   if (isAuthenticated && !restaurant) return <Navigate to="/dashboard/onboarding" replace />;
   return <>{children}</>;
 }

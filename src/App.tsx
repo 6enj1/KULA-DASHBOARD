@@ -43,9 +43,9 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
 }
 
 function OnboardingGuard({ children }: { children: React.ReactNode }) {
-  const { restaurant, isLoading } = useAuthStore();
+  const { user, restaurant, isLoading } = useAuthStore();
   if (isLoading) return null;
-  if (!restaurant) return <Navigate to="/dashboard/onboarding" replace />;
+  if (!restaurant && user?.role !== 'admin') return <Navigate to="/dashboard/onboarding" replace />;
   return <>{children}</>;
 }
 

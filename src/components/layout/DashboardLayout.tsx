@@ -2,7 +2,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../stores/auth';
 import {
   LayoutDashboard, ShoppingBag, ClipboardList, BarChart3,
-  Store, Settings, LogOut, ChevronLeft, ChevronRight,
+  Store, Settings, LogOut, ChevronLeft, ChevronRight, FileText,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
@@ -13,6 +13,7 @@ const navItems = [
   { to: '/dashboard/analytics', icon: BarChart3, label: 'Analytics' },
   { to: '/dashboard/profile', icon: Store, label: 'Restaurant' },
   { to: '/dashboard/settings', icon: Settings, label: 'Settings' },
+  { to: '/dashboard/applications', icon: FileText, label: 'Applications', adminOnly: true },
 ];
 
 export default function DashboardLayout() {
@@ -52,7 +53,9 @@ export default function DashboardLayout() {
 
         {/* Navigation */}
         <nav className="flex-1 px-3 py-4 space-y-1">
-          {navItems.map(item => (
+          {navItems
+            .filter(item => !('adminOnly' in item && item.adminOnly) || user?.role === 'admin')
+            .map(item => (
             <NavLink
               key={item.to}
               to={item.to}

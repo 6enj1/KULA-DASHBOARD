@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../../stores/auth';
-import { Eye, EyeOff, ArrowRight, Check, X } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, Check, X, Lock } from 'lucide-react';
 
 const passwordRules = [
   { test: (p: string) => p.length >= 12, label: '12+ characters' },
@@ -12,6 +12,9 @@ const passwordRules = [
 ];
 
 export default function Register() {
+  const [searchParams] = useSearchParams();
+  const inviteCode = searchParams.get('code') || '';
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,13 +26,51 @@ export default function Register() {
 
   const allValid = passwordRules.every(r => r.test(password));
 
+  // No invite code — show gated message
+  if (!inviteCode) {
+    return (
+      <div className="min-h-screen gradient-bg flex relative overflow-hidden">
+        <div className="ambient-shape w-[600px] h-[600px] bg-kula-green/15 -top-64 -left-64 animate-float" />
+        <div className="ambient-shape w-[500px] h-[500px] bg-kula-green-light/10 -bottom-48 -right-48 animate-float-delayed" />
+
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="w-full max-w-md text-center">
+            <div className="glass-premium rounded-2xl p-10">
+              <div className="w-16 h-16 rounded-full bg-kula-amber/10 flex items-center justify-center mx-auto mb-6">
+                <Lock size={28} className="text-kula-amber" />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-3 tracking-tight-heading">Registration is by Invitation Only</h2>
+              <p className="text-white/40 text-sm leading-relaxed mb-8">
+                To maintain quality on our platform, restaurant registration requires an invite code.
+                Apply to become a partner and we'll review your application within 24-48 hours.
+              </p>
+              <Link
+                to="/partner"
+                className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl gradient-green text-white font-semibold shadow-glow-green hover:shadow-glow-green-lg transition-all duration-300 hover:-translate-y-0.5"
+              >
+                Apply to Partner <ArrowRight size={18} />
+              </Link>
+            </div>
+            <p className="mt-6 text-sm text-white/30">
+              Already have an account?{' '}
+              <Link to="/dashboard/login" className="text-kula-green-light hover:underline font-medium">Sign in</Link>
+            </p>
+            <p className="mt-3">
+              <Link to="/" className="text-sm text-white/20 hover:text-white/40 transition-colors duration-300">Back to website</Link>
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!allValid) return;
     setError('');
     setLoading(true);
     try {
-      await register(email, password, name);
+      await register(email, password, name, inviteCode);
       navigate('/dashboard/onboarding');
     } catch (err: any) {
       setError(err.message || 'Registration failed');
@@ -93,6 +134,15 @@ export default function Register() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-6 auth-field-stagger">
+              <div>
+                <label className="block text-sm font-medium text-white/60 mb-2">Invite Code</label>
+                <input
+                  type="text"
+                  value={inviteCode}
+                  className="input-dark opacity-60 cursor-not-allowed"
+                  readOnly
+                />
+              </div>
               <div>
                 <label className="block text-sm font-medium text-white/60 mb-2">Your Name</label>
                 <input

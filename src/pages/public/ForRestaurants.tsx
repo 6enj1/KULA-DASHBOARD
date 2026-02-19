@@ -43,7 +43,7 @@ export default function ForRestaurants() {
             and get paid for food you'd otherwise throw away.
           </p>
           <Link
-            to="/dashboard/register"
+            to="/partner"
             className="inline-flex items-center gap-2 mt-10 px-10 py-4 rounded-xl gradient-green text-white font-semibold text-lg shadow-glow-green hover:shadow-glow-green-lg transition-all duration-300 hover:-translate-y-0.5"
           >
             Start Selling <ArrowRight size={20} />
@@ -168,7 +168,7 @@ export default function ForRestaurants() {
           <h2 className="text-3xl lg:text-5xl font-bold text-white tracking-tight-heading text-balance">Ready to turn waste into revenue?</h2>
           <p className="mt-4 text-white/70 text-lg font-light">Sign up free. First month at 0% commission. Cancel anytime.</p>
           <Link
-            to="/dashboard/register"
+            to="/partner"
             className="inline-flex items-center gap-2 mt-10 px-10 py-4 rounded-xl bg-white text-kula-green font-semibold text-lg hover:bg-white/90 shadow-premium-lg hover:shadow-premium-xl transition-all duration-300 hover:-translate-y-0.5"
           >
             Get Started Free <ArrowRight size={20} />

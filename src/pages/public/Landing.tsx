@@ -74,7 +74,7 @@ export default function Landing() {
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
               <Link
-                to="/dashboard/register"
+                to="/partner"
                 className="inline-flex items-center gap-2 px-10 py-4 rounded-xl gradient-green text-white font-semibold text-lg shadow-glow-green hover:shadow-glow-green-lg transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
               >
                 Partner with Us <ArrowRight size={20} />
@@ -285,7 +285,7 @@ export default function Landing() {
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             <Link
-              to="/dashboard/register"
+              to="/partner"
               className="inline-flex items-center gap-2 px-10 py-4 rounded-xl gradient-green text-white font-semibold text-lg shadow-glow-green hover:shadow-glow-green-lg transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0"
             >
               Get Started Free <ArrowRight size={20} />

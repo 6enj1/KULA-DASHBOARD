@@ -15,6 +15,7 @@ import Pricing from './pages/public/Pricing';
 import Contact from './pages/public/Contact';
 import Terms from './pages/public/Terms';
 import Privacy from './pages/public/Privacy';
+import PartnerApply from './pages/public/PartnerApply';
 
 // Dashboard pages
 import Login from './pages/dashboard/Login';
@@ -26,6 +27,7 @@ import Bags from './pages/dashboard/Bags';
 import Analytics from './pages/dashboard/Analytics';
 import Profile from './pages/dashboard/Profile';
 import Settings from './pages/dashboard/Settings';
+import Applications from './pages/dashboard/Applications';
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuthStore();
@@ -84,6 +86,7 @@ export default function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/terms" element={<Terms />} />
         <Route path="/privacy" element={<Privacy />} />
+        <Route path="/partner" element={<PartnerApply />} />
       </Route>
 
       {/* Auth pages */}
@@ -105,6 +108,7 @@ export default function App() {
         <Route path="analytics" element={<Analytics />} />
         <Route path="profile" element={<Profile />} />
         <Route path="settings" element={<Settings />} />
+        <Route path="applications" element={<Applications />} />
       </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

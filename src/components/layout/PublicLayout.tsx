@@ -81,7 +81,7 @@ export default function PublicLayout() {
               Sign In
             </Link>
             <Link
-              to="/dashboard/register"
+              to="/partner"
               className="text-sm font-semibold text-white rounded-xl gradient-green shadow-glow-green hover:shadow-glow-green-lg transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 active:shadow-glow"
               style={{
                 padding: scrolled ? '8px 20px' : '10px 24px',
@@ -127,7 +127,7 @@ export default function PublicLayout() {
                 <Link to="/dashboard/login" onClick={() => setMenuOpen(false)} className={`block px-4 py-2.5 text-sm font-medium ${scrolled ? 'text-gray-600' : 'text-white/70'}`}>
                   Sign In
                 </Link>
-                <Link to="/dashboard/register" onClick={() => setMenuOpen(false)} className="block btn-primary text-sm text-center">
+                <Link to="/partner" onClick={() => setMenuOpen(false)} className="block btn-primary text-sm text-center">
                   Partner with Us
                 </Link>
               </div>
@@ -170,7 +170,7 @@ export default function PublicLayout() {
               <div className="space-y-3">
                 <Link to="/for-restaurants" className="block text-sm text-gray-500 hover:text-white transition-all duration-300 hover:translate-x-1">For Restaurants</Link>
                 <Link to="/for-customers" className="block text-sm text-gray-500 hover:text-white transition-all duration-300 hover:translate-x-1">For Customers</Link>
-                <Link to="/dashboard/register" className="block text-sm text-gray-500 hover:text-white transition-all duration-300 hover:translate-x-1">Get Started</Link>
+                <Link to="/partner" className="block text-sm text-gray-500 hover:text-white transition-all duration-300 hover:translate-x-1">Get Started</Link>
               </div>
             </div>
             <div>

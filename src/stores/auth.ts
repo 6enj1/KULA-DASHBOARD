@@ -9,7 +9,7 @@ interface AuthState {
   isAuthenticated: boolean;
 
   login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name: string) => Promise<void>;
+  register: (email: string, password: string, name: string, inviteCode?: string) => Promise<void>;
   logout: () => void;
   fetchUser: () => Promise<void>;
   fetchRestaurant: () => Promise<void>;
@@ -29,9 +29,9 @@ const createAuthStore = () => create<AuthState>((set, get) => ({
     await get().fetchRestaurant();
   },
 
-  register: async (email, password, name) => {
+  register: async (email, password, name, inviteCode?) => {
     const res = await api.post<AuthResponse>('/auth/register', {
-      email, password, name, role: 'business',
+      email, password, name, role: 'business', inviteCode,
     });
     api.setTokens(res.data.accessToken, res.data.refreshToken);
     set({ user: res.data.user, isAuthenticated: true });

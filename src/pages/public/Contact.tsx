@@ -39,7 +39,7 @@ export default function Contact() {
                   </div>
                   <div>
                     <p className="font-medium text-gray-900">Email</p>
-                    <a href="mailto:hello@kula.co.za" className="text-kula-green text-sm hover:underline">hello@kula.co.za</a>
+                    <a href="mailto:hello@kulasave.co.za" className="text-kula-green text-sm hover:underline">hello@kulasave.co.za</a>
                   </div>
                 </div>
                 <div className="flex items-start gap-5">

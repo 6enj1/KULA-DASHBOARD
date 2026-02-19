@@ -40,7 +40,7 @@ export default function Privacy() {
           <p>We may update this privacy policy from time to time. We will notify you of material changes via email or in-app notification.</p>
 
           <h2 className="text-xl font-semibold text-gray-900 mt-8">12. Contact</h2>
-          <p>For privacy-related questions, contact us at <a href="mailto:privacy@kula.co.za" className="text-kula-green hover:underline">privacy@kula.co.za</a>.</p>
+          <p>For privacy-related questions, contact us at <a href="mailto:hello@kulasave.co.za" className="text-kula-green hover:underline">hello@kulasave.co.za</a>.</p>
         </div>
       </div>
     </div>

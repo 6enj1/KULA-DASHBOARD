@@ -34,7 +34,7 @@ export default function Terms() {
           <p>We may update these terms from time to time. Continued use of the Service after changes constitutes acceptance of the updated terms. We will notify users of material changes via email or in-app notification.</p>
 
           <h2 className="text-xl font-semibold text-gray-900 mt-8">10. Contact</h2>
-          <p>For questions about these terms, contact us at <a href="mailto:hello@kula.co.za" className="text-kula-green hover:underline">hello@kula.co.za</a>.</p>
+          <p>For questions about these terms, contact us at <a href="mailto:hello@kulasave.co.za" className="text-kula-green hover:underline">hello@kulasave.co.za</a>.</p>
         </div>
       </div>
     </div>

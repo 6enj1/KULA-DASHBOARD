@@ -19,7 +19,7 @@ export default function Login() {
     try {
       await login(email, password);
       const store = useAuthStore.getState();
-      navigate(store.restaurant ? '/dashboard' : '/dashboard/onboarding');
+      navigate(store.restaurant || store.user?.role === 'admin' ? '/dashboard' : '/dashboard/onboarding');
     } catch (err: any) {
       setError(err.message || 'Login failed');
     } finally {

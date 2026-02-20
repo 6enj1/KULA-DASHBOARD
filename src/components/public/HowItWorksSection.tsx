@@ -1,6 +1,20 @@
 import { useEffect, useRef, useState } from 'react';
 import { MapPin, ShoppingBag, QrCode } from 'lucide-react';
 
+// ── Responsive window width ───────────────────────────────────────────────
+function useWindowWidth() {
+  const [w, setW] = useState(
+    () => (typeof window !== 'undefined' ? window.innerWidth : 1200),
+  );
+  useEffect(() => {
+    const fn = () => setW(window.innerWidth);
+    window.addEventListener('resize', fn, { passive: true });
+    return () => window.removeEventListener('resize', fn);
+  }, []);
+  return w;
+}
+
+// ── Content ───────────────────────────────────────────────────────────────
 const steps = [
   {
     number: '01',
@@ -31,28 +45,36 @@ const screens = [
   '/kula-screen-pickup.png',
 ];
 
+// Native iPhone size the mockup is built for
+const IPHONE_W = 244;
+const IPHONE_H = 514;
+
 export default function HowItWorksSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const [step, setStep] = useState(0);
 
-  // Refs so event handlers always see current values without re-registration
   const stepRef = useRef(0);
   const lockedRef = useRef(false);
   const cooldownRef = useRef(false);
 
-  // ── Scroll / wheel interception ──────────────────────────────────────────
-  useEffect(() => {
-    const advance = (direction: 1 | -1) => {
-      if (cooldownRef.current) return;
+  // ── Responsive iPhone sizing ─────────────────────────────────────────────
+  const winW = useWindowWidth();
+  // Phone takes 26% of viewport, min 120 px, max 244 px (native)
+  const phoneW = Math.round(Math.min(IPHONE_W, Math.max(120, winW * 0.26)));
+  const phoneH = Math.round(phoneW * (IPHONE_H / IPHONE_W));
+  const phoneScale = phoneW / IPHONE_W;
 
-      if (direction > 0) {
+  // ── Scroll interception ──────────────────────────────────────────────────
+  useEffect(() => {
+    const advance = (dir: 1 | -1) => {
+      if (cooldownRef.current) return;
+      if (dir > 0) {
         if (stepRef.current < 2) {
           stepRef.current++;
           setStep(stepRef.current);
           cooldownRef.current = true;
           setTimeout(() => { cooldownRef.current = false; }, 680);
         } else {
-          // Past last step → unlock and let page scroll normally
           lockedRef.current = false;
         }
       } else {
@@ -62,7 +84,6 @@ export default function HowItWorksSection() {
           cooldownRef.current = true;
           setTimeout(() => { cooldownRef.current = false; }, 680);
         } else {
-          // Before first step → unlock and let page scroll normally
           lockedRef.current = false;
         }
       }
@@ -75,14 +96,14 @@ export default function HowItWorksSection() {
       advance(e.deltaY > 0 ? 1 : -1);
     };
 
-    let touchStartY = 0;
-    const onTouchStart = (e: TouchEvent) => { touchStartY = e.touches[0].clientY; };
+    let touchY = 0;
+    const onTouchStart = (e: TouchEvent) => { touchY = e.touches[0].clientY; };
     const onTouchMove = (e: TouchEvent) => {
       if (!lockedRef.current) return;
       e.preventDefault();
-      const dy = touchStartY - e.touches[0].clientY;
+      const dy = touchY - e.touches[0].clientY;
       if (Math.abs(dy) < 30) return;
-      touchStartY = e.touches[0].clientY;
+      touchY = e.touches[0].clientY;
       advance(dy > 0 ? 1 : -1);
     };
 
@@ -96,40 +117,38 @@ export default function HowItWorksSection() {
     };
   }, []);
 
-  // ── IntersectionObserver — lock when section fills the viewport ───────────
+  // ── IntersectionObserver ─────────────────────────────────────────────────
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
-
     const observer = new IntersectionObserver(
       ([entry]) => {
         const { intersectionRatio, boundingClientRect } = entry;
-
         if (intersectionRatio >= 0.92) {
           if (!lockedRef.current) {
-            // Entering from above (scrolling back up) → resume at last step
-            // Entering from below (scrolling down) → start at step 0
             const fromAbove = boundingClientRect.top < 0;
-            if (!fromAbove) {
-              stepRef.current = 0;
-              setStep(0);
-            } else {
-              stepRef.current = 2;
-              setStep(2);
-            }
+            stepRef.current = fromAbove ? 2 : 0;
+            setStep(stepRef.current);
             lockedRef.current = true;
           }
         } else if (intersectionRatio < 0.1) {
-          // Section has mostly left the viewport — ensure unlock
           lockedRef.current = false;
         }
       },
       { threshold: [0, 0.1, 0.5, 0.92, 1.0] },
     );
-
     observer.observe(section);
     return () => observer.disconnect();
   }, []);
+
+  // ── Icon size for steps (mirrors phone breakpoints) ──────────────────────
+  const iconBoxSize = winW < 640 ? 32 : winW < 1024 ? 40 : 52;
+  const iconSize    = winW < 640 ? 15 : winW < 1024 ? 18 : 20;
+  const iconRadius  = winW < 640 ? 10 : winW < 1024 ? 12 : 16;
+  const stepGap     = winW < 640 ? 24 : winW < 1024 ? 28 : 36;
+  const titleSize   = winW < 640 ? 14 : winW < 1024 ? 17 : 22;
+  const descSize    = winW < 640 ? 11 : winW < 1024 ? 13 : 15;
+  const progressLeft = iconBoxSize + (winW < 640 ? 8 : 12);
 
   return (
     <section
@@ -143,194 +162,195 @@ export default function HowItWorksSection() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_75%_40%,rgba(102,217,166,0.06),transparent_55%)]" />
       </div>
 
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16">
-        {/* ── Section heading ─────────────────────────────────────────────── */}
-        <div className="mb-10 text-center lg:mb-14">
-          <span className="text-xs font-bold uppercase tracking-[0.2em] text-kula-green-light">
+      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8 lg:py-14">
+
+        {/* ── Section heading ─────────────────────────────────────────── */}
+        <div className="mb-8 text-center lg:mb-12">
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-kula-green-light sm:text-xs">
             How It Works
           </span>
-          <h2 className="mt-3 text-balance text-4xl font-bold tracking-tighter text-white sm:text-5xl lg:text-6xl">
+          <h2 className="mt-2 text-balance text-2xl font-bold tracking-tighter text-white sm:text-3xl lg:text-5xl xl:text-6xl">
             From hungry to happy
             <br className="hidden sm:block" /> in three taps.
           </h2>
         </div>
 
-        <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-20">
-          {/* ════════════════════════════════════════════════════════════════
-              LEFT — 3-D iPhone mockup
-              Swing wrapper is NEVER touched by screen transitions.
-              Screen cross-fades happen only on the <img> tags inside.
-          ════════════════════════════════════════════════════════════════ */}
-          <div className="order-2 flex justify-center lg:order-1">
-            {/* ── Swing wrapper ── */}
+        {/* ── Always side-by-side: iPhone left, steps right ───────────── */}
+        <div className="flex flex-row items-center gap-4 sm:gap-8 lg:gap-14 xl:gap-24">
+
+          {/* ══════════════════════════════════════════════════════════════
+              iPhone — always on the LEFT, scales with viewport width.
+              Layout space = phoneW × phoneH.
+              The actual 244×514 mockup sits inside, scaled to fit.
+          ══════════════════════════════════════════════════════════════ */}
+          <div
+            style={{ width: phoneW, height: phoneH, flexShrink: 0, position: 'relative' }}
+          >
+            {/* Centre + scale the full-size mockup into the layout box */}
             <div
               style={{
-                animation: 'iphoneSwing 5s ease-in-out infinite',
-                willChange: 'transform',
-                filter:
-                  'drop-shadow(0 48px 96px rgba(0,0,0,0.65)) drop-shadow(0 0 48px rgba(41,125,107,0.22))',
+                position: 'absolute',
+                inset: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
-              {/* ── iPhone shell ── */}
-              <div
-                style={{
-                  position: 'relative',
-                  width: '244px',
-                  height: '514px',
-                  background:
-                    'linear-gradient(160deg, #2c2c2e 0%, #1e1e20 55%, #111113 100%)',
-                  borderRadius: '52px',
-                  boxShadow: [
-                    '0 0 0 1.5px rgba(255,255,255,0.09)',
-                    'inset 0 0 0 1px rgba(0,0,0,0.9)',
-                    'inset 0 1px 0 rgba(255,255,255,0.11)',
-                  ].join(', '),
-                }}
-              >
-                {/* Screen bezel */}
+              {/* Scale wrapper (separate from swing so they don't conflict) */}
+              <div style={{ transform: `scale(${phoneScale})`, transformOrigin: 'center center' }}>
+                {/* ── Swing wrapper — the ONLY element with the swing animation ── */}
                 <div
                   style={{
-                    position: 'absolute',
-                    inset: '4px',
-                    borderRadius: '48px',
-                    overflow: 'hidden',
-                    background: '#000',
+                    animation: 'iphoneSwing 5s ease-in-out infinite',
+                    willChange: 'transform',
+                    filter:
+                      'drop-shadow(0 40px 80px rgba(0,0,0,0.65)) drop-shadow(0 0 40px rgba(41,125,107,0.22))',
                   }}
                 >
-                  {/* ── Screenshots cross-fade — isolated from swing ── */}
-                  {screens.map((src, i) => (
-                    <img
-                      key={i}
-                      src={src}
-                      alt={`KULA app — step ${i + 1}`}
+                  {/* ── iPhone shell at native 244 × 514 ── */}
+                  <div
+                    style={{
+                      position: 'relative',
+                      width: IPHONE_W,
+                      height: IPHONE_H,
+                      background:
+                        'linear-gradient(160deg, #2c2c2e 0%, #1e1e20 55%, #111113 100%)',
+                      borderRadius: 52,
+                      boxShadow: [
+                        '0 0 0 1.5px rgba(255,255,255,0.09)',
+                        'inset 0 0 0 1px rgba(0,0,0,0.9)',
+                        'inset 0 1px 0 rgba(255,255,255,0.11)',
+                      ].join(', '),
+                    }}
+                  >
+                    {/* Screen bezel */}
+                    <div
                       style={{
                         position: 'absolute',
-                        inset: 0,
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'cover',
-                        objectPosition: 'top center',
-                        opacity: i === step ? 1 : 0,
-                        transition: 'opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1)',
+                        inset: 4,
+                        borderRadius: 48,
+                        overflow: 'hidden',
+                        background: '#000',
+                      }}
+                    >
+                      {/* Screenshots cross-fade — totally isolated from swing */}
+                      {screens.map((src, i) => (
+                        <img
+                          key={i}
+                          src={src}
+                          alt={`KULA app — step ${i + 1}`}
+                          style={{
+                            position: 'absolute',
+                            inset: 0,
+                            width: '100%',
+                            height: '100%',
+                            objectFit: 'cover',
+                            objectPosition: 'top center',
+                            opacity: i === step ? 1 : 0,
+                            transition: 'opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1)',
+                          }}
+                        />
+                      ))}
+                    </div>
+
+                    {/* Dynamic Island */}
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: 16,
+                        left: '50%',
+                        transform: 'translateX(-50%)',
+                        width: 112,
+                        height: 34,
+                        background: '#000',
+                        borderRadius: 20,
+                        zIndex: 10,
                       }}
                     />
-                  ))}
+
+                    {/* Hardware buttons */}
+                    <div style={{ position: 'absolute', left: -3, top: 72,  width: 3, height: 28, background: '#3a3a3c', borderRadius: '3px 0 0 3px' }} />
+                    <div style={{ position: 'absolute', left: -3, top: 112, width: 3, height: 44, background: '#3a3a3c', borderRadius: '3px 0 0 3px' }} />
+                    <div style={{ position: 'absolute', left: -3, top: 166, width: 3, height: 44, background: '#3a3a3c', borderRadius: '3px 0 0 3px' }} />
+                    <div style={{ position: 'absolute', right: -3, top: 128, width: 3, height: 72, background: '#3a3a3c', borderRadius: '0 3px 3px 0' }} />
+                  </div>
                 </div>
-
-                {/* Dynamic Island */}
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '16px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    width: '112px',
-                    height: '34px',
-                    background: '#000',
-                    borderRadius: '20px',
-                    zIndex: 10,
-                  }}
-                />
-
-                {/* ── Hardware buttons ── */}
-                {/* Silent toggle */}
-                <div style={{ position: 'absolute', left: '-3px', top: '72px', width: '3px', height: '28px', background: '#3a3a3c', borderRadius: '3px 0 0 3px' }} />
-                {/* Volume up */}
-                <div style={{ position: 'absolute', left: '-3px', top: '112px', width: '3px', height: '44px', background: '#3a3a3c', borderRadius: '3px 0 0 3px' }} />
-                {/* Volume down */}
-                <div style={{ position: 'absolute', left: '-3px', top: '166px', width: '3px', height: '44px', background: '#3a3a3c', borderRadius: '3px 0 0 3px' }} />
-                {/* Power */}
-                <div style={{ position: 'absolute', right: '-3px', top: '128px', width: '3px', height: '72px', background: '#3a3a3c', borderRadius: '0 3px 3px 0' }} />
               </div>
             </div>
           </div>
 
-          {/* ════════════════════════════════════════════════════════════════
-              RIGHT — Steps list
-          ════════════════════════════════════════════════════════════════ */}
-          <div className="order-1 lg:order-2">
+          {/* ══════════════════════════════════════════════════════════════
+              Steps — always on the RIGHT, fills remaining space
+          ══════════════════════════════════════════════════════════════ */}
+          <div className="min-w-0 flex-1">
             <div>
               {steps.map((s, i) => {
                 const { Icon } = s;
                 const isActive = i === step;
-                const isPast = i < step;
+                const isPast   = i < step;
 
                 return (
                   <div
                     key={i}
-                    className="flex gap-5"
                     style={{
+                      display: 'flex',
+                      gap: winW < 640 ? 8 : 12,
                       opacity: isActive ? 1 : isPast ? 0.48 : 0.22,
-                      transform: isActive ? 'translateX(0)' : 'translateX(-8px)',
+                      transform: isActive ? 'translateX(0)' : 'translateX(-6px)',
                       transition:
                         'opacity 0.7s cubic-bezier(0.16,1,0.3,1), transform 0.7s cubic-bezier(0.16,1,0.3,1)',
                     }}
                   >
-                    {/* Icon column + connector line */}
-                    <div
-                      className="flex flex-col items-center"
-                      style={{ width: '52px', flexShrink: 0 }}
-                    >
+                    {/* Icon + connector */}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flexShrink: 0, width: iconBoxSize }}>
                       <div
                         style={{
-                          width: '52px',
-                          height: '52px',
-                          borderRadius: '16px',
+                          width: iconBoxSize,
+                          height: iconBoxSize,
+                          borderRadius: iconRadius,
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           flexShrink: 0,
-                          background: isActive
-                            ? 'rgba(41,125,107,0.22)'
-                            : 'rgba(255,255,255,0.05)',
-                          border: `1px solid ${
-                            isActive
-                              ? 'rgba(102,217,166,0.38)'
-                              : 'rgba(255,255,255,0.08)'
-                          }`,
-                          boxShadow: isActive
-                            ? '0 0 24px rgba(41,125,107,0.28)'
-                            : 'none',
+                          background: isActive ? 'rgba(41,125,107,0.22)' : 'rgba(255,255,255,0.05)',
+                          border: `1px solid ${isActive ? 'rgba(102,217,166,0.38)' : 'rgba(255,255,255,0.08)'}`,
+                          boxShadow: isActive ? '0 0 20px rgba(41,125,107,0.28)' : 'none',
                           transition: 'all 0.7s cubic-bezier(0.16,1,0.3,1)',
                         }}
                       >
-                        <Icon
-                          size={20}
-                          color={isActive ? '#66D9A6' : 'rgba(255,255,255,0.35)'}
-                        />
+                        <Icon size={iconSize} color={isActive ? '#66D9A6' : 'rgba(255,255,255,0.35)'} />
                       </div>
 
-                      {/* Vertical connector */}
                       {i < steps.length - 1 && (
                         <div
                           style={{
-                            width: '1px',
+                            width: 1,
                             flex: 1,
-                            marginTop: '8px',
-                            minHeight: '28px',
-                            background:
-                              isActive || isPast
-                                ? 'linear-gradient(to bottom, rgba(102,217,166,0.28), rgba(255,255,255,0.05))'
-                                : 'rgba(255,255,255,0.07)',
+                            marginTop: 6,
+                            minHeight: 20,
+                            background: isActive || isPast
+                              ? 'linear-gradient(to bottom, rgba(102,217,166,0.28), rgba(255,255,255,0.05))'
+                              : 'rgba(255,255,255,0.07)',
                             transition: 'background 0.7s ease',
                           }}
                         />
                       )}
                     </div>
 
-                    {/* Text content */}
+                    {/* Text */}
                     <div
                       style={{
-                        paddingBottom: i < steps.length - 1 ? '36px' : '0',
-                        paddingTop: '2px',
+                        paddingBottom: i < steps.length - 1 ? stepGap : 0,
+                        paddingTop: 2,
                         flex: 1,
+                        minWidth: 0,
                       }}
                     >
                       <span
                         style={{
-                          fontSize: '11px',
+                          fontSize: 10,
                           fontWeight: 800,
-                          letterSpacing: '0.16em',
+                          letterSpacing: '0.15em',
                           textTransform: 'uppercase',
                           color: isActive ? '#66D9A6' : 'rgba(255,255,255,0.3)',
                           transition: 'color 0.7s ease',
@@ -340,11 +360,11 @@ export default function HowItWorksSection() {
                       </span>
                       <h3
                         style={{
-                          marginTop: '5px',
-                          marginBottom: '8px',
-                          fontSize: '22px',
+                          marginTop: 4,
+                          marginBottom: winW < 640 ? 4 : 6,
+                          fontSize: titleSize,
                           fontWeight: 700,
-                          letterSpacing: '-0.025em',
+                          letterSpacing: '-0.02em',
                           lineHeight: 1.2,
                           color: 'white',
                         }}
@@ -353,8 +373,8 @@ export default function HowItWorksSection() {
                       </h3>
                       <p
                         style={{
-                          fontSize: '15px',
-                          lineHeight: 1.65,
+                          fontSize: descSize,
+                          lineHeight: 1.6,
                           color: 'rgba(255,255,255,0.54)',
                           fontWeight: 400,
                         }}
@@ -369,15 +389,19 @@ export default function HowItWorksSection() {
 
             {/* Progress bar */}
             <div
-              className="flex gap-1.5"
-              style={{ marginTop: '28px', paddingLeft: '64px' }}
+              style={{
+                display: 'flex',
+                gap: 6,
+                marginTop: winW < 640 ? 16 : 24,
+                paddingLeft: progressLeft,
+              }}
             >
               {steps.map((_, i) => (
                 <div
                   key={i}
                   style={{
-                    height: '3px',
-                    borderRadius: '2px',
+                    height: 3,
+                    borderRadius: 2,
                     flex: i === step ? 3 : 1,
                     background:
                       i === step
@@ -395,16 +419,16 @@ export default function HowItWorksSection() {
             {/* Scroll hint */}
             <p
               style={{
-                marginTop: '14px',
-                paddingLeft: '64px',
-                fontSize: '12px',
+                marginTop: 10,
+                paddingLeft: progressLeft,
+                fontSize: 11,
                 color: 'rgba(255,255,255,0.18)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '7px',
+                gap: 6,
               }}
             >
-              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                 <path
                   d="M7 1v12M7 1L4.5 3.5M7 1l2.5 2.5M7 13l-2.5-2.5M7 13l2.5-2.5"
                   stroke="currentColor"
@@ -413,7 +437,7 @@ export default function HowItWorksSection() {
                   strokeLinejoin="round"
                 />
               </svg>
-              Scroll to explore all steps
+              Scroll to explore
             </p>
           </div>
         </div>

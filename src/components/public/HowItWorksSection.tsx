@@ -88,11 +88,13 @@ export default function HowItWorksSection() {
     let touchStartY = 0;
     let lastScrollY = window.scrollY;
 
-    // True only when the section completely fills the viewport
+    // Lock the instant the section's top edge reaches the viewport top.
+    // Using r.top is reliable regardless of section height — no bottom-edge
+    // race condition. The section is forced to 100dvh so it always fills the
+    // viewport exactly when r.top === 0.
     const fills = (): boolean => {
       const r = section.getBoundingClientRect();
-      const vh = window.innerHeight;
-      return r.top <= 8 && r.bottom <= vh + 8 && r.bottom > 0;
+      return r.top <= 2 && r.top > -section.offsetHeight;
     };
 
     const lock = (scrollingDown: boolean) => {
@@ -194,7 +196,7 @@ export default function HowItWorksSection() {
     <section
       ref={sectionRef}
       className="relative flex flex-col justify-center overflow-hidden bg-gradient-to-br from-gray-950 via-[#0a201d] to-gray-950"
-      style={{ minHeight: '100svh' }}
+      style={{ height: '100dvh' }}
     >
       {/* Ambient blobs */}
       <div className="pointer-events-none absolute inset-0">

@@ -2,14 +2,39 @@ import { useState } from 'react';
 import { Mail, MapPin, Phone, Send } from 'lucide-react';
 import { useInView } from '../../lib/useInView';
 
+const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
+
 export default function Contact() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [sent, setSent] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
   const [formRef, formVisible] = useInView();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSent(true);
+    setSending(true);
+    setError('');
+
+    try {
+      const res = await fetch(`${API_BASE}/contact`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Failed to send message');
+      }
+
+      setSent(true);
+      setForm({ name: '', email: '', subject: '', message: '' });
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong. Please try again.');
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -102,8 +127,11 @@ export default function Contact() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">Message</label>
                     <textarea value={form.message} onChange={e => setForm({ ...form, message: e.target.value })} className="input-field min-h-[160px] resize-none" placeholder="How can we help?" required />
                   </div>
-                  <button type="submit" className="btn-primary flex items-center gap-2">
-                    <Send size={18} /> Send Message
+                  {error && (
+                    <p className="text-red-500 text-sm">{error}</p>
+                  )}
+                  <button type="submit" disabled={sending} className="btn-primary flex items-center gap-2 disabled:opacity-50">
+                    <Send size={18} /> {sending ? 'Sending...' : 'Send Message'}
                   </button>
                 </form>
               )}

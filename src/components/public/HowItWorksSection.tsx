@@ -257,13 +257,13 @@ export default function HowItWorksSection() {
                     <div
                       style={{
                         position: 'absolute',
-                        top: 16,
+                        top: 14,
                         left: '50%',
                         transform: 'translateX(-50%)',
-                        width: 112,
-                        height: 34,
+                        width: 78,
+                        height: 24,
                         background: '#000',
-                        borderRadius: 20,
+                        borderRadius: 12,
                         zIndex: 10,
                       }}
                     />

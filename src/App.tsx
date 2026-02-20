@@ -1,5 +1,11 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
 import { useAuthStore } from './stores/auth';
 
 // Layouts
@@ -75,6 +81,8 @@ export default function App() {
   }, []);
 
   return (
+    <>
+    <ScrollToTop />
     <Routes>
       {/* Public website */}
       <Route element={<PublicLayout />}>
@@ -113,5 +121,6 @@ export default function App() {
 
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </>
   );
 }

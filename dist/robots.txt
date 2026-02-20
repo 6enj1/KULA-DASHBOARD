@@ -1,0 +1,8 @@
+# KULA - kulasave.co.za
+User-agent: *
+Allow: /
+Disallow: /dashboard/
+Disallow: /dashboard/*
+
+# Sitemap
+Sitemap: https://www.kulasave.co.za/sitemap.xml

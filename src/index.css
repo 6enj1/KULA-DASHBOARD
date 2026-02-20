@@ -204,6 +204,16 @@
 html { scrollbar-width: none; }
 ::-webkit-scrollbar { display: none; }
 
+/* iPhone 3-D swing — used by HowItWorksSection */
+@keyframes iphoneSwing {
+  0%, 100% {
+    transform: perspective(1200px) rotateY(-8deg) rotateX(4deg);
+  }
+  50% {
+    transform: perspective(1200px) rotateY(8deg) rotateX(-4deg);
+  }
+}
+
 /* Animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(8px); }

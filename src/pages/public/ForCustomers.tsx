@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, ShoppingBag, QrCode, MapPin, Heart, Clock, Sparkles } from 'lucide-react';
 import { useInView } from '../../lib/useInView';
+import HowItWorksSection from '../../components/public/HowItWorksSection';
 
 const examples = [
   { emoji: '🍣', name: 'Mystery Sushi Bag', restaurant: 'Sakura Japanese', was: 80, now: 35, savings: 56 },
@@ -11,7 +12,6 @@ const examples = [
 
 export default function ForCustomers() {
   const [bagsRef, bagsVisible] = useInView();
-  const [howRef, howVisible] = useInView();
   const [whyRef, whyVisible] = useInView();
   const [ctaRef, ctaVisible] = useInView();
 
@@ -73,36 +73,8 @@ export default function ForCustomers() {
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="bg-gray-50/50 section-padding">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className={`text-center mb-20 reveal ${howVisible ? 'visible' : ''}`}>
-            <h2 className="text-3xl lg:text-5xl font-bold text-gray-900 tracking-tight-heading">How It Works</h2>
-          </div>
-          <div ref={howRef} className="grid grid-cols-1 md:grid-cols-3 gap-16 relative">
-            {/* Connecting dots on desktop */}
-            <div className="hidden md:block absolute top-[56px] left-[20%] right-[20%] border-t-2 border-dashed border-kula-green/15" />
-            {[
-              { icon: MapPin, title: 'Browse nearby', desc: 'Open the app and discover surprise bags from restaurants near you. Filter by distance, cuisine, and price.' },
-              { icon: ShoppingBag, title: 'Reserve & pay', desc: 'Found something you like? Reserve your bag and pay securely. Your bag is held for you.' },
-              { icon: QrCode, title: 'Pick up', desc: 'Head to the restaurant during the pickup window. Show your QR code, grab your bag, and enjoy!' },
-            ].map((step, i) => (
-              <div
-                key={step.title}
-                className={`text-center relative reveal ${howVisible ? 'visible' : ''}`}
-                style={{ transitionDelay: `${i * 150}ms` }}
-              >
-                <div className="w-16 h-16 rounded-2xl bg-kula-green/10 flex items-center justify-center mx-auto mb-5 relative z-10 bg-gray-50">
-                  <step.icon size={28} className="text-kula-green" />
-                </div>
-                <span className="text-kula-green/40 text-sm font-bold">Step {i + 1}</span>
-                <h3 className="text-xl font-semibold text-gray-900 mt-1 tracking-tight-heading">{step.title}</h3>
-                <p className="text-gray-400 mt-3 leading-relaxed">{step.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* How it works — Apple-style sticky scroll with iPhone mockup */}
+      <HowItWorksSection />
 
       {/* Why customers love it */}
       <section className="bg-white section-padding">

@@ -117,28 +117,44 @@ export default function HowItWorksSection() {
     };
   }, []);
 
-  // ── IntersectionObserver ─────────────────────────────────────────────────
+  // ── Scroll-position lock ─────────────────────────────────────────────────
+  // Lock exactly when the section's bottom edge hits the bottom of the screen.
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        const { intersectionRatio, boundingClientRect } = entry;
-        if (intersectionRatio >= 0.92) {
-          if (!lockedRef.current) {
-            const fromAbove = boundingClientRect.top < 0;
-            stepRef.current = fromAbove ? 2 : 0;
-            setStep(stepRef.current);
-            lockedRef.current = true;
-          }
-        } else if (intersectionRatio < 0.1) {
-          lockedRef.current = false;
-        }
-      },
-      { threshold: [0, 0.1, 0.5, 0.92, 1.0] },
-    );
-    observer.observe(section);
-    return () => observer.disconnect();
+
+    // Track whether section bottom was already at/past the viewport bottom so
+    // we only lock on the transition (not-visible → visible), preventing an
+    // immediate re-lock after the user has scrolled past and we unlocked.
+    let prevBottomReached = false;
+    let lastScrollY = window.scrollY;
+
+    const onScroll = () => {
+      const rect = section.getBoundingClientRect();
+      // The exact condition the user asked for: section bottom touches viewport bottom
+      const bottomReached = rect.bottom <= window.innerHeight + 1; // +1 px rounding tolerance
+
+      if (bottomReached && !prevBottomReached && !lockedRef.current) {
+        // Transition: bottom just crossed into view.
+        // Determine direction from scroll delta to pick the right starting step.
+        const scrollingDown = window.scrollY >= lastScrollY;
+        stepRef.current = scrollingDown ? 0 : 2;
+        setStep(stepRef.current);
+        lockedRef.current = true;
+      }
+
+      // Only reset prevBottomReached when section has fully left the viewport
+      // (prevents re-lock while locked or immediately after unlock)
+      if (!bottomReached) prevBottomReached = false;
+      else if (!lockedRef.current) prevBottomReached = true;
+      // While locked: keep prevBottomReached at whatever it was so that after
+      // unlock + one scroll tick we correctly transition to false.
+
+      lastScrollY = window.scrollY;
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
   // ── Icon size for steps (mirrors phone breakpoints) ──────────────────────

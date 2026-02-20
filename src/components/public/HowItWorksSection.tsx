@@ -53,108 +53,132 @@ export default function HowItWorksSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const [step, setStep] = useState(0);
 
+  // stepRef keeps the authoritative step value accessible inside event-handler
+  // closures without stale-closure issues.
   const stepRef = useRef(0);
-  const lockedRef = useRef(false);
-  const cooldownRef = useRef(false);
 
   // ── Responsive iPhone sizing ─────────────────────────────────────────────
   const winW = useWindowWidth();
-  // Phone takes 26% of viewport, min 120 px, max 244 px (native)
   const phoneW = Math.round(Math.min(IPHONE_W, Math.max(120, winW * 0.26)));
   const phoneH = Math.round(phoneW * (IPHONE_H / IPHONE_W));
   const phoneScale = phoneW / IPHONE_W;
 
-  // ── Scroll interception ──────────────────────────────────────────────────
+  // ── Single unified interaction effect ────────────────────────────────────
+  //
+  // All handlers live in one effect so they share plain closure variables —
+  // no cross-effect ref sharing, no stale closures, no race conditions.
+  //
+  // Lock condition: section "fills" the viewport, defined as:
+  //   • section top  ≤ viewport top  (rect.top  ≤  8 px tolerance)
+  //   • section bottom ≤ viewport bottom (rect.bottom ≤ vh + 8)
+  //   • section bottom > 0  (section is not fully above the viewport —
+  //     fixes the bug where rect.bottom < 0 still satisfied ≤ vh)
+  //
+  // This fires at exactly the moment the section bottom touches the screen
+  // bottom while the section top is at/above the screen top.
   useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    // ── Closure-local state (avoids cross-effect ref sharing) ────────────
+    let locked      = false;  // scroll currently hijacked?
+    let wasVisible  = false;  // was section filling viewport last tick?
+    let cooldown    = false;  // step-change cooldown active?
+    let grace       = false;  // brief post-lock grace period (kills inertia)?
+    let touchStartY = 0;
+    let lastScrollY = window.scrollY;
+
+    // True only when the section completely fills the viewport
+    const fills = (): boolean => {
+      const r = section.getBoundingClientRect();
+      const vh = window.innerHeight;
+      return r.top <= 8 && r.bottom <= vh + 8 && r.bottom > 0;
+    };
+
+    const lock = (scrollingDown: boolean) => {
+      locked     = true;
+      wasVisible = true;   // prevent same-tick re-lock
+      grace      = true;
+      setTimeout(() => { grace = false; }, 500); // absorb trackpad inertia
+      stepRef.current = scrollingDown ? 0 : 2;
+      setStep(stepRef.current);
+    };
+
+    const unlock = () => {
+      locked     = false;
+      wasVisible = true;   // prevent immediate re-lock on next scroll tick
+    };
+
     const advance = (dir: 1 | -1) => {
-      if (cooldownRef.current) return;
+      if (!locked || grace || cooldown) return;
       if (dir > 0) {
         if (stepRef.current < 2) {
           stepRef.current++;
           setStep(stepRef.current);
-          cooldownRef.current = true;
-          setTimeout(() => { cooldownRef.current = false; }, 680);
+          cooldown = true;
+          setTimeout(() => { cooldown = false; }, 700);
         } else {
-          lockedRef.current = false;
+          unlock();
         }
       } else {
         if (stepRef.current > 0) {
           stepRef.current--;
           setStep(stepRef.current);
-          cooldownRef.current = true;
-          setTimeout(() => { cooldownRef.current = false; }, 680);
+          cooldown = true;
+          setTimeout(() => { cooldown = false; }, 700);
         } else {
-          lockedRef.current = false;
+          unlock();
         }
       }
     };
 
-    const onWheel = (e: WheelEvent) => {
-      if (!lockedRef.current) return;
-      e.preventDefault();
-      if (Math.abs(e.deltaY) < 4) return;
-      advance(e.deltaY > 0 ? 1 : -1);
-    };
-
-    let touchY = 0;
-    const onTouchStart = (e: TouchEvent) => { touchY = e.touches[0].clientY; };
-    const onTouchMove = (e: TouchEvent) => {
-      if (!lockedRef.current) return;
-      e.preventDefault();
-      const dy = touchY - e.touches[0].clientY;
-      if (Math.abs(dy) < 30) return;
-      touchY = e.touches[0].clientY;
-      advance(dy > 0 ? 1 : -1);
-    };
-
-    document.addEventListener('wheel', onWheel, { passive: false });
-    document.addEventListener('touchstart', onTouchStart, { passive: true });
-    document.addEventListener('touchmove', onTouchMove, { passive: false });
-    return () => {
-      document.removeEventListener('wheel', onWheel);
-      document.removeEventListener('touchstart', onTouchStart);
-      document.removeEventListener('touchmove', onTouchMove);
-    };
-  }, []);
-
-  // ── Scroll-position lock ─────────────────────────────────────────────────
-  // Lock exactly when the section's bottom edge hits the bottom of the screen.
-  useEffect(() => {
-    const section = sectionRef.current;
-    if (!section) return;
-
-    // Track whether section bottom was already at/past the viewport bottom so
-    // we only lock on the transition (not-visible → visible), preventing an
-    // immediate re-lock after the user has scrolled past and we unlocked.
-    let prevBottomReached = false;
-    let lastScrollY = window.scrollY;
-
+    // ── Scroll: detect when section fills the viewport ───────────────────
     const onScroll = () => {
-      const rect = section.getBoundingClientRect();
-      // The exact condition the user asked for: section bottom touches viewport bottom
-      const bottomReached = rect.bottom <= window.innerHeight + 1; // +1 px rounding tolerance
+      const visible = fills();
 
-      if (bottomReached && !prevBottomReached && !lockedRef.current) {
-        // Transition: bottom just crossed into view.
-        // Determine direction from scroll delta to pick the right starting step.
-        const scrollingDown = window.scrollY >= lastScrollY;
-        stepRef.current = scrollingDown ? 0 : 2;
-        setStep(stepRef.current);
-        lockedRef.current = true;
+      if (visible && !wasVisible && !locked) {
+        lock(window.scrollY >= lastScrollY); // true = scrolling down
       }
 
-      // Only reset prevBottomReached when section has fully left the viewport
-      // (prevents re-lock while locked or immediately after unlock)
-      if (!bottomReached) prevBottomReached = false;
-      else if (!lockedRef.current) prevBottomReached = true;
-      // While locked: keep prevBottomReached at whatever it was so that after
-      // unlock + one scroll tick we correctly transition to false.
+      // Only clear wasVisible when section has LEFT the viewport, so we
+      // correctly re-lock the next time it enters.
+      if (!visible) wasVisible = false;
 
       lastScrollY = window.scrollY;
     };
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    // ── Wheel: intercept while locked ────────────────────────────────────
+    const onWheel = (e: WheelEvent) => {
+      if (!locked) return;
+      e.preventDefault();
+      if (Math.abs(e.deltaY) < 3) return;
+      advance(e.deltaY > 0 ? 1 : -1);
+    };
+
+    // ── Touch: intercept while locked ────────────────────────────────────
+    const onTouchStart = (e: TouchEvent) => {
+      touchStartY = e.touches[0].clientY;
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      if (!locked) return;
+      e.preventDefault();
+      const dy = touchStartY - e.touches[0].clientY;
+      if (Math.abs(dy) < 30) return;
+      touchStartY = e.touches[0].clientY;
+      advance(dy > 0 ? 1 : -1);
+    };
+
+    window.addEventListener('scroll',     onScroll,    { passive: true  });
+    document.addEventListener('wheel',      onWheel,     { passive: false });
+    document.addEventListener('touchstart', onTouchStart,{ passive: true  });
+    document.addEventListener('touchmove',  onTouchMove, { passive: false });
+
+    return () => {
+      window.removeEventListener('scroll',     onScroll);
+      document.removeEventListener('wheel',      onWheel);
+      document.removeEventListener('touchstart', onTouchStart);
+      document.removeEventListener('touchmove',  onTouchMove);
+    };
   }, []);
 
   // ── Icon size for steps (mirrors phone breakpoints) ──────────────────────

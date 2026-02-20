@@ -59,7 +59,13 @@ export default function HowItWorksSection() {
 
   // ── Responsive iPhone sizing ─────────────────────────────────────────────
   const winW = useWindowWidth();
-  const phoneW = Math.round(Math.min(IPHONE_W, Math.max(120, winW * 0.26)));
+  // Mobile gets a larger slice of the viewport width (40%) so the mockup
+  // doesn't look tiny on small screens. Tablet/desktop stay at 26%.
+  const phoneW = Math.round(
+    winW < 640
+      ? Math.min(IPHONE_W, Math.max(150, winW * 0.40))
+      : Math.min(IPHONE_W, Math.max(120, winW * 0.26)),
+  );
   const phoneH = Math.round(phoneW * (IPHONE_H / IPHONE_W));
   const phoneScale = phoneW / IPHONE_W;
 
@@ -88,19 +94,26 @@ export default function HowItWorksSection() {
     let touchStartY = 0;
     let lastScrollY = window.scrollY;
 
-    // Lock the instant the section's top edge reaches the viewport top.
-    // Using r.top is reliable regardless of section height — no bottom-edge
-    // race condition. The section is forced to 100dvh so it always fills the
-    // viewport exactly when r.top === 0.
+    // Lock when the section's top edge is within 20 px of the viewport top —
+    // tight enough that the section fills the screen in both directions:
+    //   • scrolling DOWN: r.top drops from +large → crosses 2 → fires
+    //   • scrolling UP:   r.top rises from -large → crosses -20 → fires
+    // The old condition (r.top > -section.offsetHeight) fired as soon as even
+    // 1px of the section bottom was visible, causing the premature lock bug.
     const fills = (): boolean => {
       const r = section.getBoundingClientRect();
-      return r.top <= 2 && r.top > -section.offsetHeight;
+      return r.top <= 2 && r.top >= -20;
     };
 
     const lock = (scrollingDown: boolean) => {
       locked     = true;
       wasVisible = true;   // prevent same-tick re-lock
       grace      = true;
+      // Snap section flush with the viewport so it always looks perfect
+      const snapDelta = section.getBoundingClientRect().top;
+      if (Math.abs(snapDelta) > 0.5) {
+        window.scrollBy({ top: snapDelta, behavior: 'instant' });
+      }
       setTimeout(() => { grace = false; }, 500); // absorb trackpad inertia
       stepRef.current = scrollingDown ? 0 : 2;
       setStep(stepRef.current);

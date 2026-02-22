@@ -1,19 +1,45 @@
-import { Link } from 'react-router-dom';
-import { ArrowRight, ShoppingBag, QrCode, MapPin, Heart, Clock, Sparkles } from 'lucide-react';
+import { ArrowRight, ShoppingBag, MapPin, Heart, Clock, Sparkles } from 'lucide-react';
 import { useInView } from '../../lib/useInView';
 import HowItWorksSection from '../../components/public/HowItWorksSection';
+import { useQuery } from '@tanstack/react-query';
+import { api } from '../../lib/api';
+import type { ApiResponse } from '../../types';
 
-const examples = [
+const mockBags = [
   { emoji: '🍣', name: 'Mystery Sushi Bag', restaurant: 'Sakura Japanese', was: 80, now: 35, savings: 56 },
   { emoji: '🥐', name: 'Bakery Surprise', restaurant: 'Fresh Bake Co.', was: 50, now: 20, savings: 60 },
   { emoji: '🥪', name: 'Gourmet Sandwich Box', restaurant: 'The Deli', was: 60, now: 28, savings: 53 },
   { emoji: '🍕', name: 'Pizza Party Bag', restaurant: 'Fired Up', was: 120, now: 50, savings: 58 },
 ];
 
+function foodEmoji(foodType: string): string {
+  const t = foodType.toLowerCase();
+  if (t.includes('sushi') || t.includes('japanese')) return '🍣';
+  if (t.includes('bak') || t.includes('bread') || t.includes('pastry')) return '🥐';
+  if (t.includes('pizza')) return '🍕';
+  if (t.includes('sandwich') || t.includes('deli')) return '🥪';
+  if (t.includes('burger')) return '🍔';
+  if (t.includes('salad')) return '🥗';
+  if (t.includes('noodle') || t.includes('asian') || t.includes('chinese')) return '🍜';
+  if (t.includes('indian') || t.includes('curry')) return '🍛';
+  if (t.includes('mexican') || t.includes('taco')) return '🌮';
+  if (t.includes('dessert') || t.includes('sweet')) return '🍰';
+  return '🛍️';
+}
+
 export default function ForCustomers() {
   const [bagsRef, bagsVisible] = useInView();
   const [whyRef, whyVisible] = useInView();
   const [ctaRef, ctaVisible] = useInView();
+
+  const { data: bagsData } = useQuery({
+    queryKey: ['publicBags'],
+    queryFn: () => api.get<ApiResponse<any[]>>('/bags?limit=4&sort=savings'),
+    staleTime: 60_000,
+  });
+
+  const realBags = bagsData?.data ?? [];
+  const showReal = realBags.length > 0;
 
   return (
     <div>
@@ -48,7 +74,32 @@ export default function ForCustomers() {
             <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 tracking-tight-heading">What you could rescue today</h2>
           </div>
           <div ref={bagsRef} className="grid grid-cols-2 lg:grid-cols-4 gap-5">
-            {examples.map((bag, i) => (
+            {showReal ? realBags.map((bag, i) => (
+              <div
+                key={bag.id}
+                className={`card-premium overflow-hidden reveal ${bagsVisible ? 'visible' : ''}`}
+                style={{ transitionDelay: `${i * 100}ms` }}
+              >
+                {bag.imageUrl ? (
+                  <img src={bag.imageUrl} alt={bag.title} className="w-full h-32 object-cover" />
+                ) : (
+                  <div className="p-6 pb-0">
+                    <span className="text-4xl">{foodEmoji(bag.foodType)}</span>
+                  </div>
+                )}
+                <div className="p-6 pt-4">
+                  <h3 className="font-semibold text-gray-900">{bag.title}</h3>
+                  <p className="text-gray-400 text-xs mt-0.5">{bag.restaurant?.name}</p>
+                  <div className="flex items-baseline gap-2 mt-4">
+                    <span className="text-2xl font-bold text-kula-green">R{(bag.priceCurrent / 100).toFixed(0)}</span>
+                    <span className="text-gray-400 text-sm line-through">R{(bag.priceOriginal / 100).toFixed(0)}</span>
+                  </div>
+                  <span className="inline-block mt-3 text-xs font-medium text-kula-success bg-kula-success/10 px-2.5 py-1 rounded-full">
+                    Save {bag.savingsPercent}%
+                  </span>
+                </div>
+              </div>
+            )) : mockBags.map((bag, i) => (
               <div
                 key={bag.name}
                 className={`card-premium p-6 reveal ${bagsVisible ? 'visible' : ''}`}
@@ -68,7 +119,9 @@ export default function ForCustomers() {
             ))}
           </div>
           <p className="text-center text-gray-400 text-sm mt-8">
-            * Actual bags vary daily. That's what makes it a surprise!
+            {showReal
+              ? 'Bags update daily. Pickup times vary by restaurant.'
+              : '* Actual bags vary daily. That\'s what makes it a surprise!'}
           </p>
         </div>
       </section>

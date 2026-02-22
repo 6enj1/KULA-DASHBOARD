@@ -1,6 +1,13 @@
+import { Helmet } from 'react-helmet-async';
+
 export default function Terms() {
   return (
     <div className="bg-white py-16 lg:py-24">
+      <Helmet>
+        <title>Terms of Service | KULA — kulasave.co.za</title>
+        <meta name="description" content="Read KULA's terms of service governing your use of the food rescue marketplace in South Africa." />
+        <link rel="canonical" href="https://www.kulasave.co.za/terms" />
+      </Helmet>
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-8">Terms of Service</h1>
         <div className="prose prose-gray max-w-none space-y-6 text-gray-600 leading-relaxed">

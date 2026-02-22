@@ -1,4 +1,5 @@
 import { ArrowRight, ShoppingBag, MapPin, Heart, Clock, Sparkles } from 'lucide-react';
+import { Helmet } from 'react-helmet-async';
 import { useInView } from '../../lib/useInView';
 import HowItWorksSection from '../../components/public/HowItWorksSection';
 import { useQuery } from '@tanstack/react-query';
@@ -43,6 +44,14 @@ export default function ForCustomers() {
 
   return (
     <div>
+      <Helmet>
+        <title>Save 50% on Restaurant Food | KULA for Customers | Johannesburg</title>
+        <meta name="description" content="Rescue surprise bags of fresh surplus food from Johannesburg restaurants at 50% off or more. Great food at half the price — zero waste. Download the KULA app today." />
+        <link rel="canonical" href="https://www.kulasave.co.za/for-customers" />
+        <meta property="og:title" content="Save 50% on Restaurant Food | KULA for Customers" />
+        <meta property="og:description" content="Rescue surplus food from Johannesburg restaurants at 50% off or more. Fresh, delicious, and guilt-free." />
+        <meta property="og:url" content="https://www.kulasave.co.za/for-customers" />
+      </Helmet>
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-gray-950 via-[#0a201d] to-gray-950 py-24 lg:py-36">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(41,125,107,0.1),transparent_60%)]" />

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Mail, MapPin, Phone, Send } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
 import { useInView } from '../../lib/useInView';
 
 const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
@@ -40,14 +39,12 @@ export default function Contact() {
 
   return (
     <div>
-      <Helmet>
-        <title>Contact KULA — Get in Touch | Johannesburg, South Africa</title>
-        <meta name="description" content="Have a question about KULA? Contact our Johannesburg team. We help restaurants reduce food waste and help customers save on great meals." />
-        <link rel="canonical" href="https://www.kulasave.co.za/contact" />
-        <meta property="og:title" content="Contact KULA — Get in Touch" />
-        <meta property="og:description" content="Reach out to the KULA team in Johannesburg. We're here to help restaurants and customers." />
-        <meta property="og:url" content="https://www.kulasave.co.za/contact" />
-      </Helmet>
+      <title>Contact KULA — Get in Touch | Johannesburg, South Africa</title>
+      <meta name="description" content="Have a question about KULA? Contact our Johannesburg team. We help restaurants reduce food waste and help customers save on great meals." />
+      <link rel="canonical" href="https://www.kulasave.co.za/contact" />
+      <meta property="og:title" content="Contact KULA — Get in Touch" />
+      <meta property="og:description" content="Reach out to the KULA team in Johannesburg. We're here to help restaurants and customers." />
+      <meta property="og:url" content="https://www.kulasave.co.za/contact" />
       <section className="relative overflow-hidden bg-gradient-to-br from-gray-950 via-[#0a201d] to-gray-950 py-24 lg:py-36">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(41,125,107,0.1),transparent_60%)]" />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative hero-stagger">

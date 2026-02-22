@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Check } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
 import { useInView } from '../../lib/useInView';
 
 const tiers = [
@@ -49,14 +48,12 @@ export default function Pricing() {
 
   return (
     <div>
-      <Helmet>
-        <title>Pricing — Start Free | KULA Restaurant Plans | South Africa</title>
-        <meta name="description" content="Join KULA for free. Only 15% commission per sale — 40% lower than international competitors. First month at 0% commission. No setup fees, no contracts. Start selling surplus food today." />
-        <link rel="canonical" href="https://www.kulasave.co.za/pricing" />
-        <meta property="og:title" content="Pricing — Start Free | KULA Restaurant Plans" />
-        <meta property="og:description" content="15% commission, first month free, no setup fees. The most affordable way to sell surplus food in South Africa." />
-        <meta property="og:url" content="https://www.kulasave.co.za/pricing" />
-      </Helmet>
+      <title>Pricing — Start Free | KULA Restaurant Plans | South Africa</title>
+      <meta name="description" content="Join KULA for free. Only 15% commission per sale — 40% lower than international competitors. First month at 0% commission. No setup fees, no contracts. Start selling surplus food today." />
+      <link rel="canonical" href="https://www.kulasave.co.za/pricing" />
+      <meta property="og:title" content="Pricing — Start Free | KULA Restaurant Plans" />
+      <meta property="og:description" content="15% commission, first month free, no setup fees. The most affordable way to sell surplus food in South Africa." />
+      <meta property="og:url" content="https://www.kulasave.co.za/pricing" />
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-gray-950 via-[#0a201d] to-gray-950 py-24 lg:py-36">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(41,125,107,0.1),transparent_60%)]" />

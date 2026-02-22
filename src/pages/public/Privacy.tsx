@@ -1,13 +1,9 @@
-import { Helmet } from 'react-helmet-async';
-
 export default function Privacy() {
   return (
     <div className="bg-white py-16 lg:py-24">
-      <Helmet>
-        <title>Privacy Policy | KULA — kulasave.co.za</title>
-        <meta name="description" content="KULA's privacy policy. Learn how we collect, use, and protect your personal data on the KULA food rescue platform in South Africa." />
-        <link rel="canonical" href="https://www.kulasave.co.za/privacy" />
-      </Helmet>
+      <title>Privacy Policy | KULA — kulasave.co.za</title>
+      <meta name="description" content="KULA's privacy policy. Learn how we collect, use, and protect your personal data on the KULA food rescue platform in South Africa." />
+      <link rel="canonical" href="https://www.kulasave.co.za/privacy" />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-8">Privacy Policy</h1>
         <div className="prose prose-gray max-w-none space-y-6 text-gray-600 leading-relaxed">

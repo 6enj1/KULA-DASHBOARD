@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, TrendingUp, Users, BarChart3, Shield, Check, Clock, Zap } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
 import { useInView } from '../../lib/useInView';
 
 const steps = [
@@ -28,14 +27,12 @@ export default function ForRestaurants() {
 
   return (
     <div>
-      <Helmet>
-        <title>Sell Surplus Food & Earn More | KULA for Restaurants | Johannesburg</title>
-        <meta name="description" content="Turn your restaurant's daily surplus into revenue. List surprise bags on KULA for just 15% commission — 40% lower than competitors. First month free. Reach 200K+ customers in Johannesburg." />
-        <link rel="canonical" href="https://www.kulasave.co.za/for-restaurants" />
-        <meta property="og:title" content="Sell Surplus Food & Earn More | KULA for Restaurants" />
-        <meta property="og:description" content="Turn surplus food into revenue. 15% commission, first month free. Reach 200K+ customers in Johannesburg." />
-        <meta property="og:url" content="https://www.kulasave.co.za/for-restaurants" />
-      </Helmet>
+      <title>Sell Surplus Food & Earn More | KULA for Restaurants | Johannesburg</title>
+      <meta name="description" content="Turn your restaurant's daily surplus into revenue. List surprise bags on KULA for just 15% commission — 40% lower than competitors. First month free. Reach 200K+ customers in Johannesburg." />
+      <link rel="canonical" href="https://www.kulasave.co.za/for-restaurants" />
+      <meta property="og:title" content="Sell Surplus Food & Earn More | KULA for Restaurants" />
+      <meta property="og:description" content="Turn surplus food into revenue. 15% commission, first month free. Reach 200K+ customers in Johannesburg." />
+      <meta property="og:url" content="https://www.kulasave.co.za/for-restaurants" />
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-gray-950 via-[#0a201d] to-gray-950 py-24 lg:py-36">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(41,125,107,0.1),transparent_60%)]" />

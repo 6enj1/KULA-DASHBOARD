@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Leaf, ShoppingBag, QrCode, Star, TrendingUp, Users, MapPin, ChevronDown } from 'lucide-react';
 import { useState } from 'react';
-import { Helmet } from 'react-helmet-async';
 import { useInView } from '../../lib/useInView';
 
 const stats = [
@@ -52,14 +51,12 @@ export default function Landing() {
 
   return (
     <div className="w-full">
-      <Helmet>
-        <title>KULA — Rescue Surplus Food at Half Price | Johannesburg</title>
-        <meta name="description" content="KULA connects Johannesburg with surplus food from top local restaurants at up to 50% off. Save money, eat well, and reduce food waste. South Africa's food rescue marketplace." />
-        <link rel="canonical" href="https://www.kulasave.co.za/" />
-        <meta property="og:title" content="KULA — Rescue Surplus Food at Half Price | Johannesburg" />
-        <meta property="og:description" content="KULA connects Johannesburg with surplus food from top local restaurants at up to 50% off. Save money, eat well, and reduce food waste." />
-        <meta property="og:url" content="https://www.kulasave.co.za/" />
-      </Helmet>
+      <title>KULA — Rescue Surplus Food at Half Price | Johannesburg</title>
+      <meta name="description" content="KULA connects Johannesburg with surplus food from top local restaurants at up to 50% off. Save money, eat well, and reduce food waste. South Africa's food rescue marketplace." />
+      <link rel="canonical" href="https://www.kulasave.co.za/" />
+      <meta property="og:title" content="KULA — Rescue Surplus Food at Half Price | Johannesburg" />
+      <meta property="og:description" content="KULA connects Johannesburg with surplus food from top local restaurants at up to 50% off. Save money, eat well, and reduce food waste." />
+      <meta property="og:url" content="https://www.kulasave.co.za/" />
       {/* Hero — fixed behind scrolling content */}
       <div className="fixed inset-0 z-0 overflow-hidden bg-gradient-to-br from-gray-950 via-[#0a201d] to-gray-950">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(41,125,107,0.12),transparent_60%)]" />

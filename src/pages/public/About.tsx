@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { ArrowRight, Heart, Leaf, Users, Globe } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
 import { useInView } from '../../lib/useInView';
 
 const values = [
@@ -19,14 +18,12 @@ export default function About() {
 
   return (
     <div>
-      <Helmet>
-        <title>About KULA — South Africa's Food Rescue Marketplace</title>
-        <meta name="description" content="Learn about KULA's mission to reduce food waste in Johannesburg while making quality restaurant meals affordable for students and young professionals. Built in Joburg, for Joburg." />
-        <link rel="canonical" href="https://www.kulasave.co.za/about" />
-        <meta property="og:title" content="About KULA — South Africa's Food Rescue Marketplace" />
-        <meta property="og:description" content="KULA's mission: reduce food waste in Johannesburg while making quality restaurant meals affordable. Built in Joburg, for Joburg." />
-        <meta property="og:url" content="https://www.kulasave.co.za/about" />
-      </Helmet>
+      <title>About KULA — South Africa's Food Rescue Marketplace</title>
+      <meta name="description" content="Learn about KULA's mission to reduce food waste in Johannesburg while making quality restaurant meals affordable for students and young professionals. Built in Joburg, for Joburg." />
+      <link rel="canonical" href="https://www.kulasave.co.za/about" />
+      <meta property="og:title" content="About KULA — South Africa's Food Rescue Marketplace" />
+      <meta property="og:description" content="KULA's mission: reduce food waste in Johannesburg while making quality restaurant meals affordable. Built in Joburg, for Joburg." />
+      <meta property="og:url" content="https://www.kulasave.co.za/about" />
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-gray-950 via-[#0a201d] to-gray-950 py-24 lg:py-36">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(41,125,107,0.1),transparent_60%)]" />

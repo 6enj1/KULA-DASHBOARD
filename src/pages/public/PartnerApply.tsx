@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Check, Building2, Mail, Phone, MapPin, MessageSquare, User } from 'lucide-react';
-import { Helmet } from 'react-helmet-async';
 import { useInView } from '../../lib/useInView';
 import { api } from '../../lib/api';
 
@@ -40,14 +39,12 @@ export default function PartnerApply() {
 
   return (
     <div>
-      <Helmet>
-        <title>Partner with KULA — Restaurant Sign Up | Johannesburg</title>
-        <meta name="description" content="Apply to list your Johannesburg restaurant on KULA. Start selling surplus food bags and reaching new customers in under 48 hours. Free to join, 15% commission only when you sell." />
-        <link rel="canonical" href="https://www.kulasave.co.za/partner" />
-        <meta property="og:title" content="Partner with KULA — Restaurant Sign Up" />
-        <meta property="og:description" content="List your restaurant on KULA and reach new customers. Free to join, 15% commission per sale." />
-        <meta property="og:url" content="https://www.kulasave.co.za/partner" />
-      </Helmet>
+      <title>Partner with KULA — Restaurant Sign Up | Johannesburg</title>
+      <meta name="description" content="Apply to list your Johannesburg restaurant on KULA. Start selling surplus food bags and reaching new customers in under 48 hours. Free to join, 15% commission only when you sell." />
+      <link rel="canonical" href="https://www.kulasave.co.za/partner" />
+      <meta property="og:title" content="Partner with KULA — Restaurant Sign Up" />
+      <meta property="og:description" content="List your restaurant on KULA and reach new customers. Free to join, 15% commission per sale." />
+      <meta property="og:url" content="https://www.kulasave.co.za/partner" />
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-br from-gray-950 via-[#0a201d] to-gray-950 py-24 lg:py-36">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(41,125,107,0.12),transparent_60%)]" />
